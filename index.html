@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint Chip Digital Journal</title>
+    <style>
+        :root {
+            --mint-cream: #d7fdec; 
+            --choco: #3e2723;
+            --wafer: #fffdf9;
+            --recorded-mint: #98ffdb;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--choco);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            /* RANDOM CHUNKY CHOCOLATE CHIPS */
+            background-color: var(--mint-cream);
+            background-image: 
+                radial-gradient(ellipse at 10% 20%, var(--choco) 1%, transparent 1.2%),
+                radial-gradient(ellipse at 30% 50%, var(--choco) 1.5% 2%, transparent 2.2%),
+                radial-gradient(ellipse at 70% 15%, var(--choco) 1.2%, transparent 1.4%),
+                radial-gradient(ellipse at 85% 75%, var(--choco) 2%, transparent 2.3%),
+                radial-gradient(ellipse at 40% 90%, var(--choco) 1.1%, transparent 1.3%),
+                radial-gradient(ellipse at 15% 80%, var(--choco) 1.8%, transparent 2.1%);
+            background-size: 180px 180px;
+        }
+
+        h1 {
+            background: var(--choco);
+            color: var(--mint-cream);
+            padding: 10px 30px;
+            border: 4px solid var(--wafer);
+            border-radius: 50px;
+            text-transform: uppercase;
+            box-shadow: 6px 6px 0px rgba(0,0,0,0.1);
+        }
+
+        .section-box {
+            background: var(--wafer);
+            padding: 20px;
+            border: 4px solid var(--choco);
+            border-radius: 10px;
+            box-shadow: 10px 10px 0px var(--choco);
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+
+        #calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+        }
+
+        .day {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: white;
+            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .day:hover { background: var(--choco); color: white; }
+        .recorded { background: var(--recorded-mint); border: 2px solid var(--choco); }
+
+        /* SEARCH STYLING */
+        #search-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--choco);
+            font-family: inherit;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        .search-result {
+            padding: 8px;
+            border-bottom: 1px dashed var(--choco);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .search-result:hover { background: var(--mint-cream); }
+
+        /* MODAL */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(62, 39, 35, 0.8);
+            z-index: 100;
+        }
+
+        #modal {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--wafer);
+            border: 5px solid var(--choco);
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 15px 15px 0px var(--choco);
+        }
+
+        #preview-img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border: 3px solid var(--choco);
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border: 2px solid var(--choco);
+            padding: 10px;
+            font-family: inherit;
+            margin-bottom: 15px;
+            resize: none;
+        }
+
+        button {
+            padding: 12px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            border: 3px solid var(--choco);
+        }
+
+        .save-btn { background: var(--choco); color: white; width: 100%; margin-bottom: 10px; }
+        .del-btn { background: #ff7675; color: white; flex: 1; }
+        .close-btn { background: white; flex: 1; }
+        .row { display: flex; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>★ MY ARCHIVE ★</h1>
+
+    <div class="section-box">
+        <label><b>View Month:</b></label>
+        <input type="month" id="monthPicker" value="2026-03" onchange="render()">
+        <hr style="border: 1px dashed var(--choco); margin: 15px 0;">
+        <div id="calendar-grid"></div>
+    </div>
+
+    <div class="section-box">
+        <label><b>Search Documentary:</b></label>
+        <input type="text" id="search-input" placeholder="Type a keyword (e.g. diving, chemistry)..." oninput="searchEntries()">
+        <div id="search-results"></div>
+    </div>
+
+    <div id="overlay">
+        <div id="modal">
+            <h2 id="modal-date" style="margin:0 0 15px 0;">Date</h2>
+            <img id="preview-img" src="">
+            <textarea id="text-input" placeholder="What happened today?"></textarea>
+            <input type="file" id="file-input" accept="image/*" style="margin-bottom:15px; width:100%;">
+            <button class="save-btn" onclick="save()">SAVE DOCUMENTARY ★</button>
+            <div class="row">
+                <button class="del-btn" onclick="confirmDel()">DELETE</button>
+                <button class="close-btn" onclick="closeM()">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeDate = "";
+
+        function render() {
+            const grid = document.getElementById('calendar-grid');
+            const [y, m] = document.getElementById('monthPicker').value.split('-');
+            grid.innerHTML = '';
+            const daysInMonth = new Date(y, m, 0).getDate();
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const id = `${y}-${m}-${i.toString().padStart(2, '0')}`;
+                const cell = document.createElement('div');
+                cell.className = 'day' + (localStorage.getItem(id) ? ' recorded' : '');
+                cell.innerText = i;
+                cell.onclick = () => openM(id);
+                grid.appendChild(cell);
+            }
+        }
+
+        function searchEntries() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const resultsDiv = document.getElementById('search-results');
+            resultsDiv.innerHTML = '';
+
+            if (query.length < 2) return;
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                // Ensure the key looks like a date (YYYY-MM-DD)
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) continue;
+
+                const data = JSON.parse(localStorage.getItem(key));
+                if (data.text.toLowerCase().includes(query)) {
+                    const div = document.createElement('div');
+                    div.className = 'search-result';
+                    // Show a snippet of the text
+                    const snippet = data.text.length > 30 ? data.text.substring(0, 30) + "..." : data.text;
+                    div.innerHTML = `<strong>${key}</strong>: ${snippet}`;
+                    div.onclick = () => openM(key);
+                    resultsDiv.appendChild(div);
+                }
+            }
+        }
+
+        function openM(id) {
+            activeDate = id;
+            document.getElementById('modal-date').innerText = id;
+            const data = JSON.parse(localStorage.getItem(id)) || { text: "", img: "" };
+            document.getElementById('text-input').value = data.text;
+            const img = document.getElementById('preview-img');
+            img.src = data.img || "";
+            img.style.display = data.img ? "block" : "none";
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeM() { document.getElementById('overlay').style.display = 'none'; }
+
+        function save() {
+            const text = document.getElementById('text-input').value;
+            const file = document.getElementById('file-input').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    localStorage.setItem(activeDate, JSON.stringify({ text, img: e.target.result }));
+                    closeM(); render(); searchEntries();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const old = JSON.parse(localStorage.getItem(activeDate)) || {};
+                localStorage.setItem(activeDate, JSON.stringify({ text, img: old.img || null }));
+                closeM(); render(); searchEntries();
+            }
+        }
+
+        function confirmDel() {
+            if (confirm("Are you sure you want to delete this memory?")) {
+                localStorage.removeItem(activeDate);
+                closeM(); render(); searchEntries();
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
